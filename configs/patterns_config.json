@@ -1,0 +1,81 @@
+{
+  "question_patterns": [
+    {
+      "type": "subclass_query",
+      "patterns": [
+        "дочерние элементы класса (.*)",
+        "что входит в состав класса (.*)",
+        "перечисли подклассы (.*)",
+        "состав класса (.*)"
+      ],
+      "response_templates": {
+        "single": "{focus_gen} включает {item}",
+        "multiple": "В состав {focus_gen} входят: {items}",
+        "default": "Для {focus_gen} не найдено подклассов"
+      },
+      "handler": "get_subclasses"
+    },
+    {
+      "type": "superclass_query",
+      "patterns": [
+        "что нужно знать перед изучением (.*)",
+        "в какой класс входит (.*)",
+        "вышестоящие классы для (.*)"
+      ],
+      "response_templates": {
+        "single": "{focus_nom} является частью {item}",
+        "multiple": "{focus_nom} входит в: {items}",
+        "default": "Для {focus_nom} не найдено суперклассов"
+      },
+      "handler": "get_superclasses"
+    },
+    {
+      "type": "synonym_query",
+      "patterns": ["синонимы (.*)", "другие названия (.*)"],
+      "response_templates": {
+        "single": "Для {focus_gen} используется название: {item}",
+        "multiple": "Для {focus_gen} существуют названия: {items}",
+        "default": "Синонимов для {focus_gen} не найдено"
+      },
+      "handler": "get_synonyms"
+    },
+    {
+      "type": "method_definition",
+      "patterns": [
+        "что такое (.*)",
+        "определение (.*)"
+      ],
+      "response_templates": {
+        "single": "{method_name} - {definition}"
+      },
+      "handler": "get_definition"
+    },
+    {
+      "type": "method_steps",
+      "patterns": [
+        "опиши шаги (.*)",
+        "опиши алгоритм (.*)",
+        "назови этапы (.*)"
+      ],
+      "response_templates": {
+        "single": "Шаги {method_name}:\n{steps}"
+      },
+      "handler": "get_method_steps"
+    }
+  ],
+  "grammar_settings": {
+    "default_lang": "ru",
+    "max_items": 10
+  },
+  "grammar_settings": {
+    "cases": {
+      "focus_nom": "nomn",
+      "focus_gen": "gent"
+    },
+    "max_items": 5
+  },
+  "system_settings": {
+    "fallback_response": "Не удалось обработать ваш запрос"
+  }
+
+}
