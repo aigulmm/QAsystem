@@ -1,81 +1,382 @@
-{
-  "question_patterns": [
-    {
-      "type": "subclass_query",
-      "patterns": [
-        "дочерние элементы класса (.*)",
-        "что входит в состав класса (.*)",
-        "перечисли подклассы (.*)",
-        "состав класса (.*)"
-      ],
-      "response_templates": {
-        "single": "{focus_gen} включает {item}",
-        "multiple": "В состав {focus_gen} входят: {items}",
-        "default": "Для {focus_gen} не найдено подклассов"
-      },
-      "handler": "get_subclasses"
+[
+  {
+    "type": "subclass_query",
+    "patterns": [
+      "дочерние элементы (.*)",
+      "что входит в состав (.*)",
+      "перечисли подклассы (.*)",
+      "состав (.*)",
+      "из чего состоит (.*)",
+      "части (.*)",
+      "компоненты (.*)",
+      "какие части включает (.*)",
+      "какие компоненты включает (.*)",
+      "составляющие (.*)",
+      "что содержит в себе (.*)",
+      "что содержит внутри себя (.*)"
+    ],
+    "response_templates": {
+      "single": "{focus} включает: {items}",
+      "multiple": "Подклассы {focus_gen}: {items}",
+      "default": "Для {focus_gen} не найдено подклассов"
     },
-    {
-      "type": "superclass_query",
-      "patterns": [
-        "что нужно знать перед изучением (.*)",
-        "в какой класс входит (.*)",
-        "вышестоящие классы для (.*)"
-      ],
-      "response_templates": {
-        "single": "{focus_nom} является частью {item}",
-        "multiple": "{focus_nom} входит в: {items}",
-        "default": "Для {focus_nom} не найдено суперклассов"
-      },
-      "handler": "get_superclasses"
-    },
-    {
-      "type": "synonym_query",
-      "patterns": ["синонимы (.*)", "другие названия (.*)"],
-      "response_templates": {
-        "single": "Для {focus_gen} используется название: {item}",
-        "multiple": "Для {focus_gen} существуют названия: {items}",
-        "default": "Синонимов для {focus_gen} не найдено"
-      },
-      "handler": "get_synonyms"
-    },
-    {
-      "type": "method_definition",
-      "patterns": [
-        "что такое (.*)",
-        "определение (.*)"
-      ],
-      "response_templates": {
-        "single": "{method_name} - {definition}"
-      },
-      "handler": "get_definition"
-    },
-    {
-      "type": "method_steps",
-      "patterns": [
-        "опиши шаги (.*)",
-        "опиши алгоритм (.*)",
-        "назови этапы (.*)"
-      ],
-      "response_templates": {
-        "single": "Шаги {method_name}:\n{steps}"
-      },
-      "handler": "get_method_steps"
-    }
-  ],
-  "grammar_settings": {
-    "default_lang": "ru",
-    "max_items": 10
+    "handler": "get_subclasses"
   },
-  "grammar_settings": {
-    "cases": {
-      "focus_nom": "nomn",
-      "focus_gen": "gent"
+  {
+    "type": "superclass_query",
+    "patterns": [
+      "что нужно знать перед изучением (.*)",
+      "в какой класс входит (.*)",
+      "вышестоящие классы для (.*)",
+      "базовые понятия для (.*)",
+      "частью чего является (.*)",
+      "во что входит (.*)",
+      "к чему относится (.*)",
+      "холоним (.*)"
+    ],
+    "response_templates": {
+      "single": "{focus} входит в класс: {items}",
+      "multiple": "{focus} является частью: {items}",
+      "default": "Надклассы для {focus_gen} не определены"
     },
-    "max_items": 5
+    "handler": "get_superclasses"
   },
-  "system_settings": {
-    "fallback_response": "Не удалось обработать ваш запрос"
+  {
+    "type": "synonyms_query",
+    "patterns": [
+      "синонимы (.*)",
+      "другие названия (.*)",
+      "как ещё называют (.*)"
+    ],
+    "response_templates": {
+      "multiple": "Синонимы {focus_gen}: {items}",
+      "default": "Для {focus_gen} синонимы не найдены"
+    },
+    "handler": "get_synonyms"
+  },
+  {
+    "type": "definition_query",
+    "patterns": [
+      "что такое (.*)",
+      "определение (.*)",
+      "дай определение (.*)",
+      "поясни термин (.*)"
+    ],
+    "response_templates": {
+      "default": "{focus} — это {definition}"
+    },
+    "handler": "get_definition"
+  },
+  {
+    "type": "process_query",
+    "patterns": [
+      "опиши шаги (.*)",
+      "алгоритм (.*)",
+      "этапы выполнения (.*)",
+      "последовательность действий для (.*)"
+    ],
+    "response_templates": {
+      "steps": "Алгоритм {focus_gen}:\n{steps}",
+      "default": "Описание алгоритма {focus_gen} недоступно"
+    },
+    "handler": "get_algorithm_steps"
+  },
+  {
+    "type": "authorship_query",
+    "patterns": [
+      "кто автор                                               (.*)",
+      "кем разработан (.*)",
+      "кто создал (.*)",
+      "авторство (.*)",
+      "в честь кого назван (.*)",
+      "в честь чего назван (.*)"
+    ],
+    "response_templates": {
+      "single": "Метод {focus_gen} разработан {author}",
+      "multiple": "Авторы {focus_gen}: {authors}",
+      "default": "Авторство {focus_gen} неизвестно"
+    },
+    "handler": "get_authors"
+  },
+  {
+    "type": "complexity_query",
+    "patterns": [
+      "сложность метода (.*)",
+      "вычислительная сложность (.*)",
+      "асимптотика (.*)",
+      "O-нотация для (.*)"
+    ],
+    "response_templates": {
+      "single": "Сложность {focus_gen}: {complexity}"
+    },
+    "handler": "get_complexity"
+  },
+  {
+    "type": "comparison_query",
+    "patterns": [
+      "чем отличается (.*) от (.*)",
+      "сравни методы (.*) и (.*)",
+      "разница между (.*) и (.*)",
+      "противопоставь (.*) и (.*)"
+    ],
+    "response_templates": {
+      "default": "Сравнение {item1} и {item2}:\n{comparison_table}"
+    },
+    "handler": "compare_methods"
+  },
+  {
+    "type": "visualization_query",
+    "patterns": [
+      "схема алгоритма (.*)",
+      "диаграмма (.*)",
+      "графическое представление (.*)",
+      "визуализация (.*)",
+      "изображение (.*)",
+      "иллюстрация (.*)",
+      "скриншот (.*)",
+      "фотография (.*)",
+      "картинка (.*)",
+      "рисунок (.*)",
+      "как выглядит (.*)"
+    ],
+    "response_templates": {
+      "default": "Визуализация {focus_gen}:\n{image_url}\nОписание: {description}"
+    },
+    "handler": "get_visualization"
+  },
+  {
+    "type": "properties_query",
+    "patterns": [
+      "свойства (.*)",
+      "характеристики (.*)",
+      "ключевые атрибуты (.*)",
+      "особенности (.*)",
+      "каким свойством обладает (.*)",
+      "нейтральный элемент (.*)",
+      "какой нейтральный элемент у (.*)"
+    ],
+    "response_templates": {
+      "multiple": "Свойства {focus_gen}: {properties}",
+      "default": "Свойства {focus_gen} не документированы"
+    },
+    "handler": "get_properties"
+  },
+  {
+    "type": "application_query",
+    "patterns": [
+      "где применяется метод (.*)",
+      "применение метода (.*)",
+      "где используется (.*)",
+      "чем используется (.*)",
+      "кто использует (.*)",
+      "где применяют (.*)"
+    ],
+    "response_templates": {
+      "multiple": "Применение {focus_gen}: {applications}",
+      "default": "Области применения {focus_gen} не документированы"
+    },
+    "handler": "get_applications"
+  },
+  {
+    "type": "formula_query",
+    "patterns": [
+      "как найти (.*)",
+      "формула (.*)",
+      "выражение для (.*)",
+      "математическое выражение (.*)"
+    ],
+    "response_templates": {
+      "default": "Формула для {focus_gen}:\n{formula}",
+      "latex": "Формула в LaTeX: {latex_formula}"
+    },
+    "handler": "get_formula"
+  },
+  {
+    "type": "discipline_query",
+    "patterns": [
+      "где изучается (.*)",
+      "где исследуется (.*)",
+      "какой наукой изучается (.*)",
+      "какой наукой исследуется (.*)",
+      "какая наука изучает (.*)",
+      "какая наука исследует (.*)",
+      "в какой дисциплине исследуется (.*)"
+    ],
+    "response_templates": {
+      "single": "{focus} изучается в {discipline}",
+      "multiple": "{focus} исследуется в дисциплинах: {disciplines}",
+      "default": "Дисциплинарная принадлежность {focus_gen} не определена"
+    },
+    "handler": "get_disciplines"
+  },
+  {
+    "type": "study_object_query",
+    "patterns": [
+      "предмет изучения (.*)",
+      "предмет исследования (.*)",
+      "что изучает (.*)",
+      "что исследует (.*)",
+      "над чем работает (.*)",
+      "объект (.*)",
+      "объект исследований (.*)"
+    ],
+    "response_templates": {
+      "default": "{focus} изучает: {object}"
+    },
+    "handler": "get_study_object"
+  },
+  {
+    "type": "causality_query",
+    "patterns": [
+      "какова причина (.*)",
+      "что является причиной (.*)",
+      "из чего проистекает (.*)",
+      "чем вызвано (.*)",
+      "что вызывает (.*)"
+    ],
+    "response_templates": {
+      "default": "Причина {focus_gen}: {cause}"
+    },
+    "handler": "get_causality"
+  },
+  {
+    "type": "cardinality_query",
+    "patterns": [
+      "мощность (.*)",
+      "кардинальность (.*)",
+      "кардинальное число (.*)"
+    ],
+    "response_templates": {
+      "default": "Мощность {focus_gen}: {cardinality}"
+    },
+    "handler": "get_cardinality"
+  },
+  {
+    "type": "notation_query",
+    "patterns": [
+      "обозначение (.*)",
+      "математическое обозначение (.*)",
+      "как обозначается (.*)",
+      "чем обозначается (.*)"
+    ],
+    "response_templates": {
+      "default": "{focus} обозначается как: {notation}"
+    },
+    "handler": "get_notation"
+  },
+  {
+    "type": "tex_query",
+    "patterns": [
+      "TeX-команда для (.*)",
+      "команда в TeX для (.*)",
+      "строка на TeX для (.*)",
+      "тех-команда для (.*)",
+      "команда в тех для (.*)",
+      "строка на тех для (.*)"
+    ],
+    "response_templates": {
+      "default": "TeX-команда для {focus_gen}: {tex_command}"
+    },
+    "handler": "get_tex_command"
+  },
+  {
+    "type": "antonym_query",
+    "patterns": [
+      "противоположность (.*)",
+      "противоположное понятие (.*)",
+      "антоним (.*)",
+      "какое понятие противоположно (.*)",
+      "что противоположно (.*)",
+      "противопоставление (.*)"
+    ],
+    "response_templates": {
+      "default": "Противоположное понятие для {focus_gen}: {antonym}"
+    },
+    "handler": "get_antonym"
+  },
+  {
+    "type": "etymology_query",
+    "patterns": [
+      "в честь чего названо (.*)",
+      "в честь чего названа (.*)",
+      "в честь чего названы (.*)",
+      "в честь кого названо (.*)",
+      "в честь кого названа (.*)",
+      "в честь кого названы (.*)"
+    ],
+    "response_templates": {
+      "default": "Название происходит от: {etymology}"
+    },
+    "handler": "get_etymology"
+  },
+  {
+    "type": "numeric_value_query",
+    "patterns": [
+      "числовое значение (.*)",
+      "значение (.*)",
+      "численное значение (.*)",
+      "каково значение (.*)",
+      "каково численное значение (.*)",
+      "каково числовое значение (.*)"
+    ],
+    "response_templates": {
+      "default": "Значение {focus_gen}: {value}"
+    },
+    "handler": "get_numeric_value"
+  },
+  {
+    "type": "examples_query",
+    "patterns": [
+      "пример задачи для (.*)",
+      "какую задачу решает (.*)",
+      "пример использования (.*)",
+      "типовое применение (.*)"
+    ],
+    "response_templates": {
+      "multiple": "Примеры задач для {focus_gen}:\n{examples}",
+      "default": "Примеры использования {focus_gen} не найдены"
+    },
+    "handler": "get_examples"
+  },
+  {
+    "type": "history_query",
+    "patterns": [
+      "когда был разработан (.*)",
+      "история создания (.*)",
+      "дата создания (.*)",
+      "исторический контекст (.*)"
+    ],
+    "response_templates": {
+      "default": "{focus} был разработан: {history}"
+    },
+    "handler": "get_history"
+  },
+  {
+    "type": "optimization_query",
+    "patterns": [
+      "как оптимизировать (.*)",
+      "улучшение производительности (.*)",
+      "оптимизация метода (.*)",
+      "ускорение (.*)"
+    ],
+    "response_templates": {
+      "multiple": "Способы оптимизации {focus_gen}:\n{optimizations}",
+      "default": "Оптимизации для {focus_gen} не найдены"
+    },
+    "handler": "get_optimizations"
+  },
+  {
+    "type": "limitations_query",
+    "patterns": [
+      "ограничения (.*)",
+      "недостатки (.*)",
+      "слабые места (.*)",
+      "минусы метода (.*)"
+    ],
+    "response_templates": {
+      "multiple": "Ограничения {focus_gen}: {limitations}",
+      "default": "{focus} не имеет значительных ограничений"
+    },
+    "handler": "get_limitations"
   }
-
-}
+]

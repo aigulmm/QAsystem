@@ -1,94 +1,91 @@
-import pymorphy2
 import logging
-from string import Formatter
+import pymorphy2
 
 
 class ResponseBuilder:
-    def __init__(self, config):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.morph = pymorphy2.MorphAnalyzer()
-        self.config = config
+        self.logger.info("ResponseBuilder initialized")
 
-    def build_response(self, question_type, focus, results):
-        if not results:
-            return self._get_default_response(question_type, focus)
+    def build_response(self, handler_data, ontology_data):
+        # Обработка случая, когда данные не найдены
+        if ontology_data is None or (isinstance(ontology_data, list) and not ontology_data):
+            default_template = handler_data['response_templates'].get('default')
+        if default_template:
+            return self._apply_morphology(default_template, handler_data)
+        return "Информация не найдена"
 
-        templates = self._get_templates_for_type(question_type)
-        if not templates:
-            return self.config['system_settings']['fallback_response']
+        # Определение шаблона ответа
+        templates = handler_data['response_templates']
+        response_template = templates.get('default', "{result}")
 
-        if isinstance(results, list):
-            return self._build_list_response(templates, focus, results)
-        else:
-            return self._build_single_response(templates, focus, results)
 
-    def _get_templates_for_type(self, question_type):
-        for pattern in self.config['question_patterns']:
-            if pattern['type'] == question_type:
-                return pattern['response_templates']
-        return None
+        handler_type = handler_data['handler']
 
-    def _get_default_response(self, question_type, focus):
-        templates = self._get_templates_for_type(question_type)
-        if templates and 'default' in templates:
-            return templates['default'].format(
-                focus_nom=self._inflect(focus, 'nomn'),
-                focus_gen=self._inflect(focus, 'gent')
-            )
-        return self.config['system_settings']['fallback_response']
 
-    def _build_list_response(self, templates, focus, results):
-        focus_gen = self._inflect(focus, 'gent')
-        items = [self._format_item(item) for item in results[:self.config['grammar_settings']['max_items']]]
-        items_str = self._join_items(items)
+        if handler_type == 'get_algorithm_steps' and isinstance(ontology_data, list):
+            if 'steps' in templates:
+                steps = "\n".join([f"{i + 1}. {step}" for i, step in enumerate(ontology_data)])
+                return self._apply_morphology(
+                    templates['steps'],
+                    handler_data,
+                    {'steps': steps}
+                )
 
-        if len(results) > 1 and 'multiple' in templates:
-            template = templates['multiple']
-        else:
-            template = templates['single']
 
-        return template.format(
-            focus_nom=self._inflect(focus, 'nomn'),
-            focus_gen=focus_gen,
-            items=items_str,
-            item=items[0] if items else ''
-        )
+        if isinstance(ontology_data, list):
+            if len(ontology_data) == 1 and 'single' in templates:
+                response_template = templates['single']
+                ontology_data = ontology_data[0]
+            elif len(ontology_data) > 1 and 'multiple' in templates:
+                response_template = templates['multiple']
+                ontology_data = ", ".join(ontology_data)
 
-    def _build_single_response(self, templates, focus, results):
-        if 'single' not in templates:
-            return self.config['system_settings']['fallback_response']
-
-        template = templates['single']
-
-        formatter = Formatter()
-        format_keys = [item[1] for item in formatter.parse(template) if item[1]]
-
-        formatted_data = {
-            'method_name': focus,
-            **results
-        }
-        filtered_data = {
-            k: v for k, v in formatted_data.items()
-            if k in format_keys
+        # Сборка данных для подстановки
+        data = {
+            'result': ontology_data,
+            'items': ", ".join(ontology_data) if isinstance(ontology_data, list) else ontology_data
         }
 
-        try:
-            return template.format(**filtered_data)
-        except KeyError as e:
-            logging.error(f"Missing key in template: {e}")
-            return self.config['system_settings']['fallback_response']
+        return self._apply_morphology(response_template, handler_data, data)
 
-    def _format_item(self, item):
-        if item.get('comment'):
-            return f"{item['label']} ({item['comment']})"
-        return item['label']
 
-    def _join_items(self, items):
-        if not items:
-            return ""
-        if len(items) == 1:
-            return items[0]
-        return ", ".join(items[:-1]) + " и " + items[-1]
+def _apply_morphology(self, template, handler_data, extra_data=None):
+    """Применяет морфологическое согласование к шаблону ответа"""
+    focus = handler_data.get('focus_original', '')
 
-    def _inflect(self, text, case):
-        words = text.split()
-        return ' '.join([self.morph.parse(w)[0].inflect({case}).word for w in words])
+    # Генерация форм слова для фокуса
+    forms = {}
+    if focus:
+        parsed = self.morph.parse(focus)[0]
+        forms = {
+            'nomn': parsed.inflect({'nomn'}).word if parsed.inflect({'nomn'}) else focus,
+            'gent': parsed.inflect({'gent'}).word if parsed.inflect({'gent'}) else focus,
+            'datv': parsed.inflect({'datv'}).word if parsed.inflect({'datv'}) else focus,
+            'accs': parsed.inflect({'accs'}).word if parsed.inflect({'accs'}) else focus,
+            'ablt': parsed.inflect({'ablt'}).word if parsed.inflect({'ablt'}) else focus,
+            'loct': parsed.inflect({'loct'}).word if parsed.inflect({'loct'}) else focus,
+        }
+
+    # Сбор всех данных для подстановки
+    data = {
+        'focus': focus,
+        'focus_nomn': forms.get('nomn', focus),
+        'focus_gent': forms.get('gent', focus),
+        'focus_datv': forms.get('datv', focus),
+        'focus_accs': forms.get('accs', focus),
+        'focus_ablt': forms.get('ablt', focus),
+        'focus_loct': forms.get('loct', focus),
+        **handler_data,
+        **(extra_data or {})
+    }
+
+    # Замена плейсхолдеров
+    response = template
+    for key, value in data.items():
+        placeholder = f'{{{key}}}'
+        if placeholder in response:
+            response = response.replace(placeholder, str(value))
+
+    return response

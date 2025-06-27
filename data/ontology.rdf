@@ -129,6 +129,17 @@
 
     <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#note"/>
     
+     <!-- Кастомные аннотационные свойства -->
+    <owl:AnnotationProperty rdf:about="http://ontomathpro.org/omp2#hasDefinition"/>
+
+
+    <owl:AnnotationProperty rdf:about="http://ontomathpro.org/omp2#hasAlgorithmStep"/>
+
+
+    <owl:AnnotationProperty rdf:about="http://ontomathpro.org/omp2#hasApplication"/>
+
+
+    <owl:AnnotationProperty rdf:about="http://ontomathpro.org/omp2#hasReference"/>
 
 
     <!-- 
@@ -43665,7 +43676,6 @@ Demidovich B.P., Maron I.A. Computational Mathematics. - Moscow. Mir Publisher, 
 
 
     <!-- http://ontomathpro.org/omp2#E568 -->
-
     <owl:Class rdf:about="http://ontomathpro.org/omp2#E568">
         <owl:equivalentClass>
             <owl:Restriction>
@@ -43673,28 +43683,64 @@ Demidovich B.P., Maron I.A. Computational Mathematics. - Moscow. Mir Publisher, 
                 <owl:allValuesFrom rdf:resource="http://ontomathpro.org/omp2#E444"/>
             </owl:Restriction>
         </owl:equivalentClass>
+
         <rdfs:subClassOf rdf:resource="http://ontomathpro.org/omp2#E499"/>
-        <rdfs:comment xml:lang="ru">метод, который используется для решения квадратных систем линейных алгебраических уравнений, нахождения обратной матрицы, нахождения координат вектора в заданном базисе или отыскания ранга матрицы.
-Основные шаги метода:
-1. Выписать расширенную матрицу системы.
-2. Выбрать ведущий элемент (любой ненулевой элемент) в любой строке и в любом столбце, кроме последнего. Строка и столбец, в которых он находится, называются ведущими.
-3. Выполнить жорданово исключение с выбранным ведущим элементом. Отметить ведущую строку и все строки, помеченные ранее.
-4. Если хотя бы одна строка имеет вид: (0 0 … 0 : b), b ≠ 0, то система решений не имеет.
-5. Если все ненулевые строки матрицы помечены, то выписать систему и найти её общее решение.
-6. Выбрать ведущий элемент в любой непомеченной строке и в любом столбце, кроме последнего. Перейти к пункту 3.
 
-Чтобы выполнить жорданово исключение, нужно:
-1. Разделить ведущую строку на ведущий элемент.
-2. Заполнить свободные места в ведущем столбце нулями.
-3. Остальные элементы матрицы пересчитать по формуле, называемой «правилом прямоугольника».
+        <!-- Определение метода -->
+        <hasDefinition xml:lang="ru">
+            Метод для решения квадратных систем линейных алгебраических уравнений,
+            нахождения обратной матрицы, определения координат вектора в заданном базисе
+            или вычисления ранга матрицы.
+        </hasDefinition>
 
-Где применяется?
-См. Воеводин В.В., Кузнецов Ю.А. Матрицы и вычисления. - М.: Наука, 1984. - С.213.</rdfs:comment>
-        <rdfs:comment xml:lang="ru">См. Березин И.С., Жидков Н.П. Методы вычислений. Том 1. - М.:Наука, 1966. - С.381.</rdfs:comment>
+        <!-- Пошаговый алгоритм -->
+        <hasAlgorithmStep xml:lang="ru" rdf:parseType="Literal">
+            <![CDATA[
+            <ol>
+                <li>Выписать расширенную матрицу системы</li>
+                <li>Выбрать ведущий элемент (любой ненулевой элемент) в любой строке и в любом столбце, кроме последнего</li>
+                <li>Выполнить жорданово исключение с выбранным ведущим элементом</li>
+                <li>Отметить ведущую строку</li>
+                <li>Если хотя бы одна строка имеет вид: (0 0 … 0 : b), b ≠ 0 → система несовместна</li>
+                <li>Если все ненулевые строки помечены → выписать систему и найти общее решение</li>
+                <li>Иначе → выбрать новый ведущий элемент в непомеченной строке и перейти к шагу 3</li>
+            </ol>
+            ]]>
+        </hasAlgorithmStep>
+
+        <!-- Процедура жорданова исключения -->
+        <hasAlgorithmStep xml:lang="ru" rdf:parseType="Literal">
+            <![CDATA[
+            <p>Жорданово исключение выполняется следующим образом:</p>
+            <ol>
+                <li>Разделить ведущую строку на ведущий элемент</li>
+                <li>Заполнить свободные места в ведущем столбце нулями</li>
+                <li>Пересчитать остальные элементы матрицы по правилу прямоугольника</li>
+            </ol>
+            ]]>
+        </hasAlgorithmStep>
+
+        <!-- Применение метода -->
+        <hasApplication xml:lang="ru">Решение систем линейных уравнений</hasApplication>
+        <hasApplication xml:lang="ru">Вычисление обратной матрицы</hasApplication>
+        <hasApplication xml:lang="ru">Определение координат вектора в базисе</hasApplication>
+        <hasApplication xml:lang="ru">Вычисление ранга матрицы</hasApplication>
+
+        <!-- Библиографические ссылки -->
+        <hasReference xml:lang="ru">
+            Воеводин В.В., Кузнецов Ю.А. Матрицы и вычисления. - М.: Наука, 1984. - С.213
+        </hasReference>
+        <hasReference xml:lang="ru">
+            Березин И.С., Жидков Н.П. Методы вычислений. Том 1. - М.:Наука, 1966. - С.381
+        </hasReference>
+
+        <!-- Лейблы -->
+
         <rdfs:label xml:lang="en">Jordan method</rdfs:label>
         <rdfs:label xml:lang="ru">Метод Жордана</rdfs:label>
     </owl:Class>
-    
+
+
 
 
     <!-- http://ontomathpro.org/omp2#E569 -->
